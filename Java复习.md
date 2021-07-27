@@ -1,4 +1,4 @@
-# Java复习
+
 
 ## Java程序设计
 
@@ -83,7 +83,7 @@
        ![img](https://upload-images.jianshu.io/upload_images/8576307-dfa6742d52a6c3de.png?imageMogr2/auto-orient/strip|imageView2/2/w/1008/format/webp)
 
    - 初始化：.class文件初始化
-   
+
 6. 所有的I/O可以分为两类：面向**字符**的输入/输出流，面向**字节**的输入/输出流。面向：指的是在哪个意义上保持一致
 
    1. 面向**字节**：保证文件二进制内容和读入JVM内部的**二进制内容**一致，适合读入视频文件或音频文件，或任何不需要做变换的文件内容。一次读入或读出是8位二进制。字节流能处理所有类型的数据。
@@ -234,3 +234,189 @@
 
 1. **序列化**是把Java对象转换成字节序列的过程，**反序列化**就是把字节序列恢复为Java对象的过程。**为什么**需要序列化：在两个Java进程进行通信时进行Java序列化与反序列化，发送方把这个Java对象转换为字节序列，在网络上传送，接收方需要从字节序列上恢复处Java对象。**好处**：实现了数据的持久化，可以把数据永久地保存到硬盘上；利用序列化实现远程通信，在网络上传送对象的字节序列。
 2. 如何实现Java的序列化：通过实现Serializable接口或Externalizable接口就可以实现。想要实现序列化对象必须先创建一个OutputStream，然后把他嵌进ObjectOutputStream，这时就能用writeObject()方法把对象写入OutputStream，读的时候需要把InputStream嵌入ObjectInputStream中，再调用readObject。不过这样读出来的只是一个Object的reference，在用之前还得先下传。
+
+## 递归 条件 概率
+
+### 典型递归问题
+
+1. 斐波那契数列 
+
+### 循环与条件
+
+1. for循环可以不使用"{}"，但是**仅限于执行语句**，变量声明语句必须使用"{}"
+
+2. 例题：查找100以内所有的素数
+
+   方法：筛选法，从头到尾把当前数的倍数筛选掉，比如2的倍数4,6,8,10.....都筛选掉，剩余的即为素数
+   
+   ```java
+   public void sushu(){
+       int[] a = new int[101];
+       int i, j = 2;
+       while (j < 101) {
+           if (a[j] == 0) {
+               for (i = j + 1; i < 101; i++) {
+                   if (i % j == 0) {
+                       a[i] = 1;
+                   }
+               }
+           }
+           j++;
+       }
+   
+       for (int k = 0; k < 101; k++) {
+           if (k >= 2 && a[k] == 0) {
+               System.out.println(k);
+           }
+       }
+   }
+   ```
+   
+
+
+
+## Java内存管理
+
+### 垃圾收集
+
+1. **Java垃圾回收机制：**在Java中，程序员**不需要显示地释放一个对象的内存**，而是由虚拟机自动执行（优点：避免引起内存泄漏）。在JVM中，有一个垃圾回收线程，它是低优先级的，在正常情况下不会执行，只有在虚拟机空闲或当前堆内存不足时才会触发执行，扫描哪些没有被任何引用的对象，并将他们添加到要回收的集合中进行回收。
+2. **GC**：垃圾收集（Gabage Collection），Java中使用GC来监视Java程序的运行，当对象不再使用时会自动释放后对象所使用的内存，Java使用一系列软指针来跟踪对象的各个引用，并用一个对象表将这些软指针映射为对象的引用。**软指针**不直接指向对象，而是指向对象的引用。使用软指针，GC能够以单独的线程在后台运行，并依次检查每个对象，通过更改对象表项，GC可以标记对象、移除对象、移动对象或检查对象。
+3. 调用System类中的静态gc()方法可以运行垃圾收集器，但这样并不能保证立即回收指定对象。
+4. Java的垃圾回收机制是为所有的Java应用进程服务的，任何一个进程都不能命令垃圾回收机制做什么、怎么做或做多少。在JVM垃圾收集器收集一个对象之前，一般要求程序调用适当的方法释放资源，但在没有明确释放资源的情况下，Java的finalize()默认机制可以终止该对象来释放资源。
+5. 在Java语言中，判断一块内存空间是否符合垃圾收集器收集标准的标准只有两个：
+   1. 给对象赋予了空值null，以后再也没有调用过
+   2. 给对象赋予了新值，即重新分配了内存空间
+
+### 内存管理
+
+1. Java所有对象都在堆中，对象内存的分配是由程序完成的，内存的释放是由GC完成的。GC为了能够正确地释放对象，必须监控每个对象的运行状态，包括申请、引用、被引用、赋值等。释放对象的根本原则是该对象不再被引用。
+2. Java内存泄漏：①对象是可达的，在有向图中，存在通路可以于其相连；②对象是无用的，即程序以后不会再使用这些对象。
+3. 内存泄漏原因：
+   1. 全局集合：必须注意管理存储库的大小，必须有某种机制使得存储库中移除不再需要的数据。
+   2. 缓存：缓存是一种用于快速查找已经执行的操作结果的数据结构，如果一个操作执行起来很慢，对于常用的输入数据就可以将操作的结果缓存，并在下次调用操作时调用缓存的数据。缓存是以动态方法实现的，方法如下：
+      - 检查结果是否在缓存中，在就返回结果
+      - 不在缓存中就进行计算
+      - *将计算出来的结果添加到缓存中*，会有潜在的内存泄漏→如果缓存所占的空间过大，就移除缓存最久的结果，将计算的结果添加到缓存中
+   3. ClassLoader：ClassLoader本身可以关联许多类及其静态字段，所以就有许多内存被泄漏
+
+### clone
+
+1. Cloneable和Serializable一样都是标记型接口，内部没有方法和属性，implements Cloneable表示该对象能被克隆，能够使用Object.clone()方法，如果没有引用该接口就会报错CloneNotSupportedException。
+
+2. Object类的clone()是protected的，不能直接调用，可以被子类调用。Object默认实现的是一个浅复制，
+
+   ```java
+   @HotSpotIntrinsicCandidate
+   protected native Object clone() throws CloneNotSupportedException;
+   ```
+
+## 面向对象
+
+### 基础知识
+
+1. 对象是同类事物的一种抽象表现形式，而实例时对象的具体化，一个对象可以实例化很多实例。 
+2. 类方法：
+   - clone(): 创建并返回此对象的副本
+   - equals(Object obj): 其他对象与此对象是否相等
+   - finalize()：当垃圾回收器确定不存在该对象的更多引用时，由对象 的垃圾回收器调用此方法
+   - getClass(): 返回对象的类
+   - hashCode(): 返回该对象的哈希值
+   - notify(): 唤醒在等待的单个线程
+   - notifyAll(): 唤醒所有等待的线程
+   - toString(): 返回该对象的字符串表示
+   - wait(): 线程等待，直到调用notify()或notifyAll()
+   - wait(long timeout):  线程等待，直到调用notify()或超过timeout
+   - wait(long timeout, int nanos): 线程等待，直到...或其他线程中断当前线程
+3. Java创建对象的方式：
+   1. new语句创建对象
+   2. 反射手段，调用java.lang.Class或java.lang.reflect.Constructor类的newInstance()实例方法
+   3. 调用对象的clone方法
+   4. 使用反序列化手段，调用java.io.ObjectInputStream对象的readObject()方法
+4. 内部类：静态内部类意味着创建一个static内部类的对象，不需要一个外部类对象，不能从static内部类的一个对象访问一个外部类对象
+
+### 集合类
+
+1. Java容器类库主要有两种类型：Collection和Map
+
+   ![img](https://pic3.zhimg.com/80/v2-37a924e5830ed38d9c76296314cb4baa_1440w.png)
+
+2. Collection类型是单个元素的集合，Map持有key-value关联。所有的Java容器类都可以自动调整自己的尺寸。
+
+3. List、Set、Map将所有的对象一律视为Object类型。
+
+4. Collection、List、Set、Map都是接口，不能被实例化。
+
+5. Vector容器确切地知道它所持有的对象是什么类别，不进行边界检查。
+
+6. HashMap和Hashtable的区别：
+
+   1. HashMap没有分类或排序，允许一个null键和多个null值。
+   2. Hashtable类似于HashMap，但是不允许null键和null值，比HashMap慢，因为它是同步的。
+   3. Hashtable继承自Dirtionary类，HashMap是Map接口的一个实现。
+   4. Hashtable的方法是Synchronize的，在多个线程访问Hashtable时，不需要为自己的方法实现同步，而HashMap需要。
+
+#### List
+
+1. List所有的元素**可以重复**且有序，主要分为**ArrayList**和**LinkedList**，前者底层使用数组实现的List，后者使用链表实现的List
+2. Vector是一个已经被弃用的类，因为他是线程同步的，访问速度慢。Stack满足后进先出，LinkedList可以实现所有的栈功能。
+
+![image-20210726200701529](C:\Users\86132\AppData\Roaming\Typora\typora-user-images\image-20210726200701529.png)
+
+#### Queue
+
+1. 队列是一个先进先出的数据结构，LinkedList提供了方法支持队列操作，并且实现了Queue接口，可以通过LinkedList向上转型为Queue
+
+#### Set
+
+1. set中的元素不可重复且无序
+2. HashSet底层使用散列函数，在查询方面有优化
+3. TreeSet底层使用红黑树
+
+#### Map
+
+1. Map是一种使用键值对存储的数据结构，Map可以多维扩展，key唯一
+2. HashMap更适合查找、删除、插入
+3. TreeMap更适合遍历
+
+线程安全的集合类：Vector，Stack，Hashable，java.util.concurrent下的所有集合类
+
+### 多态的概念
+
+1. 什么是多态：多态可以认为是”一个接口，多种方法“，在程序运行中才决定调用哪个函数。多态性是允许将父对象设置成为和它的一个或多个子对象相等的技术，赋值之后父对象就可以根据当前赋值给它的子对象的特性以不用的方式运作。
+2. 重载和覆盖的区别：覆盖（override）是指派生类重写基类的函数，重写的函数必须有一致的参数表和返回值；重载（overload）是指编写一个与已有函数同名但参数表不同的函数。
+
+## 继承与接口
+
+### 不能继承的情况
+
+1. 匿名内部类是没有名字的内部类，不能继承其他类，但一个内部类可以作为一个接口，由另一个内部类实现
+2. final类不能被继承，一个final类中的所有方法都默认为final。
+
+### 抽象类和接口
+
+1. 抽象类只能作为其他类的基类，不能直接被实例化，对抽象类不能使用new操作符，抽象类如果含有抽象的变量或值，他们要么是null类型，要么包含对非抽象类的实例的引用。
+
+2. 抽象类允许包含抽象成员，但不是必须的，抽象类也可以有非抽象方法。
+
+3. 抽象类不允许是final的。
+
+4. 如果一个非抽象类从抽象类中派生，则必须通过覆盖来实现所有继承来的抽象成员。
+
+5. AbstractList继承图
+
+   ![image-20210727155259846](C:\Users\86132\AppData\Roaming\Typora\typora-user-images\image-20210727155259846.png)
+
+   
+
+6. HashSet继承图
+
+   ![image-20210727155426697](C:\Users\86132\AppData\Roaming\Typora\typora-user-images\image-20210727155426697.png)
+
+7. AbstractSet继承图
+
+   ![image-20210727155713785](C:\Users\86132\AppData\Roaming\Typora\typora-user-images\image-20210727155713785.png)
+
+8. 接口用于描述系统对外提供的所有服务，因此接口中的成员常量和方法必须是public公开类型的。接口中的方法仅仅描述能做什么，但不指明如何去做，因此接口中的方法都是抽象的。接口只有静态（static）变量。接口中的变量是final类型。接口的**方法**默认是**public abstract**，**属性**默认是**public static final**常量，且必须**赋初值**。
+
+
+
