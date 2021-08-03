@@ -351,8 +351,15 @@
 6. HashMap和Hashtable的区别：
 
    1. HashMap没有分类或排序，允许一个null键和多个null值。
+   
    2. Hashtable类似于HashMap，但是不允许null键和null值，比HashMap慢，因为它是同步的。
+   
    3. Hashtable继承自Dirtionary类，HashMap是Map接口的一个实现。
+   
+      ![image-20210803113028457](C:\Users\86132\AppData\Roaming\Typora\typora-user-images\image-20210803113028457.png)
+   
+      ![image-20210803112926417](C:\Users\86132\AppData\Roaming\Typora\typora-user-images\image-20210803112926417.png)
+   
    4. Hashtable的方法是Synchronize的，在多个线程访问Hashtable时，不需要为自己的方法实现同步，而HashMap需要。
 
 #### List
