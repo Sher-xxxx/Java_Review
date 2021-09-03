@@ -10,7 +10,7 @@
 
    1. Bootstrap ClassLoader，最顶层的加载类，主要加载核心类库
    2. Extention ClassLoader，扩展的类加载器
-   3. Appclass Loader，加载当前应用的classpath的所有类
+   3. App ClassLoader，加载当前应用的classpath的所有类
 
 3. 一个类加载的时候，使用父类委托模式。
 
